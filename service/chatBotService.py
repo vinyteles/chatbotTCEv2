@@ -4,7 +4,7 @@ import requests
 
 flag = 0
 
-
+# teste com git
 
 def concatStringAnswer(nome, responsavel, numero):
     x = "Nome: " + nome + ", Responsável: " + responsavel + ", Contato: " + numero + "\n"
