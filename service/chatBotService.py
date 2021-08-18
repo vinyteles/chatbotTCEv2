@@ -6,6 +6,10 @@ flag = 0
 
 # olhar este link para testar o twilio no proprio sandbox deles e ver se funfa o chatbot!
 # https://www.twilio.com/blog/build-a-whatsapp-chatbot-with-python-flask-and-twilio
+# um dos próximos passos será ver se abriremos as seções multiplas para vários usuarios acessarem ao mesmo tempo no
+# proprio backend e como faremos isso, principalmente com o twillio.
+# pedir ajuda para o sávio sobre como manter essas várias seções abertas e por quanto tempo (precisa de thread?)
+
 
 def concatStringAnswer(nome, responsavel, numero):
     x = "Nome: " + nome + ", Responsável: " + responsavel + ", Contato: " + numero + "\n"
