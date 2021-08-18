@@ -4,7 +4,8 @@ import requests
 
 flag = 0
 
-# teste com git
+# olhar este link para testar o twilio no proprio sandbox deles e ver se funfa o chatbot!
+# https://www.twilio.com/blog/build-a-whatsapp-chatbot-with-python-flask-and-twilio
 
 def concatStringAnswer(nome, responsavel, numero):
     x = "Nome: " + nome + ", Responsável: " + responsavel + ", Contato: " + numero + "\n"
