@@ -118,3 +118,11 @@ def find_person_in_local(local_contact, user_contact, api_contact_list):
             break
 
     return answer_string
+
+
+def find_session(user_id_list, user_id):
+    for id in user_id_list:
+        if user_id in id:
+            return id[user_id]
+
+    return 0

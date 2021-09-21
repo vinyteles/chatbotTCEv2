@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from service.chatBotService import find_local_and_people
+from service.chatBotService import find_local_and_people, find_session
 
 # from twilio.rest import Client
 #
@@ -21,6 +21,8 @@ from service.chatBotService import find_local_and_people
 #
 # print(message.sid)
 
+user_id_list = []
+
 
 # initializing chatbot
 authenticator = IAMAuthenticator('W30jmk_PvRlI0AuFrr4Y0f4lOWxBqXEuT4eDjA9QtfWQ')
@@ -28,30 +30,44 @@ assistant = AssistantV2(
     version='2021-06-14',
     authenticator=authenticator
 )
+
+
+
 assistant.set_service_url('https://api.us-south.assistant.watson.cloud.ibm.com/instances/f9baf793-cfc3-4e9b-a0d4-67fc3db16b45')
-# creating a chatbot session
-chatbot_session = assistant.create_session(
-    assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674'
-).get_result()
-#print(chatbot_session)
+
 # initializing flask
 app = Flask(__name__)
 
+# Bot para whatsapp por Twilio
+@app.route('/bot', methods=['POST'])
+def bot():
 
-# Falta achar algum jeito de transformar todos os nomes, responsaveis e talvez blocos em csv para upar no watson como entidade
+    return 'ok'
 
-# HTML Requests
-@app.route('/send_message', methods=['GET'])
-def send_message():
+# Bot para web
+@app.route('/bot_web', methods=['GET'])
+def bot_web():
     user_message = request.get_json()['user_message']  # getting the user message
-
+    user_id = request.get_json()['id']
     print('mensagem do usario: ' + user_message)
+    print('user id: ' + str(user_id))
 
+
+    chatbot_session = find_session(user_id_list, user_id)
+    if not chatbot_session:
+        # creating a chatbot session
+        chatbot_session = assistant.create_session(
+            assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674'
+        ).get_result()['session_id']
+        user_id_list.append({user_id: chatbot_session})
+
+    print('user list abaixo: ')
+    print(user_id_list)
 
     # getting the bot answer
     response = assistant.message(
         assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674',
-        session_id=chatbot_session['session_id'],
+        session_id=chatbot_session,
         input={
             'message_type': 'text',
             'text': user_message
