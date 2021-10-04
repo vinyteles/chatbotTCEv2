@@ -4,12 +4,23 @@ import requests
 
 flag = 0
 
-# olhar este link para testar o twilio no proprio sandbox deles e ver se funfa o chatbot!
-# https://www.twilio.com/blog/build-a-whatsapp-chatbot-with-python-flask-and-twilio
-# um dos próximos passos será ver se abriremos as seções multiplas para vários usuarios acessarem ao mesmo tempo no
-# proprio backend e como faremos isso, principalmente com o twillio.
-# pedir ajuda para o sávio sobre como manter essas várias seções abertas e por quanto tempo (precisa de thread?)
+def call_Watson(isTwilio, user_message, user_id_list):
+    user_id = request.get_json()['id']
+    print('mensagem do usario: ' + user_message)
+    print('user id: ' + str(user_id))
 
+    chatbot_session = find_session(user_id_list, user_id)
+    if not chatbot_session:
+        # creating a chatbot session
+        chatbot_session = assistant.create_session(
+            assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674'
+        ).get_result()['session_id']
+        user_id_list.append({user_id: chatbot_session})
+
+    print('user list abaixo: ')
+    print(user_id_list)
+
+    return user_id_list
 
 def concatStringAnswer(nome, responsavel, numero):
     x = "Nome: " + nome + ", Responsável: " + responsavel + ", Contato: " + numero + "\n"

@@ -6,6 +6,8 @@ import pandas as pd
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from service.chatBotService import find_local_and_people, find_session
+from twilio.twiml.messaging_response import MessagingResponse
+
 
 # from twilio.rest import Client
 #
@@ -38,11 +40,55 @@ assistant.set_service_url('https://api.us-south.assistant.watson.cloud.ibm.com/i
 # initializing flask
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def teste():
+
+    return 'ok'
+
 # Bot para whatsapp por Twilio
 @app.route('/bot', methods=['POST'])
 def bot():
+    print(request.values.get('Body', ''))
+    user_message = request.values.get('Body', '').lower()
+    user_id = request.values.get('From', '').lower()
 
-    return 'ok'
+    chatbot_session = find_session(user_id_list, user_id)
+    if not chatbot_session:
+        print("pode ser isso aqui bro")
+        # creating a chatbot session
+        chatbot_session = assistant.create_session(
+            assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674'
+        ).get_result()['session_id']
+        user_id_list.append({user_id: chatbot_session})
+
+    print('user list abaixo: ')
+    print(user_id_list)
+
+    # getting the bot answer
+    response = assistant.message(
+        assistant_id='7fdda5d1-75d5-4b16-8201-925b0a64e674',
+        session_id=chatbot_session,
+        input={
+            'message_type': 'text',
+            'text': user_message
+        }).get_result()
+    print(response)
+
+    print("não é")
+
+    #print(request.values) # aqui voce acha todos os dados do request do twillio
+    resp = MessagingResponse()
+    msg = resp.message()
+
+    if not response['output']['intents']:
+        msg.body(response['output']['generic'][0]['text'])
+    elif (response['output']['intents'][0]['intent'] == 'Ramal' and response['output']['entities']):
+        #return findContact(response['output']['entities'])
+        msg.body(find_local_and_people(response['output']['entities']))
+    else:
+        msg.body(response['output']['generic'][0]['text'])
+
+    return str(resp)
 
 # Bot para web
 @app.route('/bot_web', methods=['GET'])
@@ -74,11 +120,11 @@ def bot_web():
         }).get_result()
     print(response)
 
-
     if (response['output']['intents'][0]['intent'] == 'Ramal' and response['output']['entities']):
         #return findContact(response['output']['entities'])
         return find_local_and_people(response['output']['entities'])
-    return 'ok'
+
+    return response['output']['generic'][0]['text']
 
 
 # running app
